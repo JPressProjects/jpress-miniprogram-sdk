@@ -27,14 +27,14 @@ App({
 
 ![](./doc/imgs/jpress_app_id.png)
 
-#### 用户登录和注册
+### 小程序用户登录和注册
 
 **用户登录**
 
 ```js
 wx.login({
   success: res => {
-    jpress.login(res.code)
+    jpress.wxLogin(res.code)
   }
 })
 ```
@@ -53,9 +53,34 @@ js 处理：
 
 ```js
 getUserInfo: function(e) {
-    jpress.getUserInfo(e.detail)
+    jpress.wxGetUserInfo(e.detail)
 }
 ```
+
+### SDK 方法列表
+
+ 
+
+|  接口 | 描述 | 备注 |
+| --- | --- | --- |
+| init | 对JPress SDK 进行初始化 | 在小程序启动的时候调用  |
+| createGetRequest | 构建一个Get API请求 |  |
+| createPostRequest | 构建一个Post API请求 |  |
+| createRequest | 构建一个API请求，默认是get请求 |  |
+| wxLogin | 进行用户code初始化 |  |
+| wxGetUserInfo | 进行用户注册 （如果当前用户没有注册，就会注册一个新的用户；如果用户已经注册，则初始化当前用户信息） |  |
+| optionInfo | 获取网站配置信息 |  |
+| userInfo | 通过用户ID获取用户信息 |  |
+| myInfo | 获取当前登录的用户信息（我的信息） |  |
+| userSave | 对用户信息进行保存 |  |
+| articleInfo | 获取单篇文章信息 |  |
+| articleList | 获取文章列表（固定数量，默认为10条数据） |  |
+| articlePagination | 分页加载文章列表 |  |
+| articleCategoryInfo | 获取网站的分类信息 |  |
+| articleSave | 文章数据更新 |  |
+| pageInfo | 获取单个页面信息 |  |
+| pageList | 获取固定标识的页面列表 |  |
+
 
 
 #### 获取当前用户信息（自己的信息）
@@ -99,6 +124,8 @@ jpress.userSave(userData)
 })
 ```
 
-其他接口紧张更新中，预计10月底能发布第一个版本。
+其他方法参考SDK列表。
+
+
 
 

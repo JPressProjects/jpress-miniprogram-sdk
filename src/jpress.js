@@ -112,7 +112,6 @@ const createRequest = (req = {
   return {
     send : () => p
   }
-
 }
 
 /**
@@ -120,8 +119,7 @@ const createRequest = (req = {
  * 要保证和JPress签名算法一致
  */
 const sign = obj => {
-  if (!obj) { 
-    console.log('需要加密的数组对象为空');
+  if (obj == null) { 
     return null;
    }
 
@@ -175,6 +173,20 @@ const decryptUserInfo = (data = {
 
 
 
+///////////////////////option api start/////////////////////////////////
+
+/**
+ * 获取网站配置信息
+ */
+const optionInfo = key => {
+  return createGetRequest({
+    api: apis.optionInfo,
+    paras: { key: key }
+  })
+}
+
+///////////////////////option api end/////////////////////////////////
+
 ///////////////////////user api start/////////////////////////////////
 
 /**
@@ -210,9 +222,122 @@ const userSave = userData => {
 ///////////////////////user api end/////////////////////////////////
 
 
+///////////////////////article api start/////////////////////////////////
+
+/**
+ * 获取文章信息
+ */
+const articleInfo = id => {
+  return createGetRequest({
+    api: apis.articleInfo,
+    paras: { id: id }
+  })
+}
+
+/**
+ * 获取文章列表
+ */
+const articleList = (paras = {
+  flag,
+  hasThumbnail,
+  orderBy,
+  count
+}) => {
+  return createGetRequest({
+    api: apis.articleList,
+    paras: paras
+  })
+}
+
+/**
+ * 分页获取文章内容
+ */
+const articlePagination = (paras = {
+  categoryId
+}) => {
+  return createGetRequest({
+    api: apis.articlePagination,
+    paras: paras
+  })
+}
+
+/**
+ * 获取文章分类信息
+ */
+const articleCategoryInfo = (paras = {
+  id,
+  slug,
+  type,
+}) => {
+  return createGetRequest({
+    api: apis.articleCategoryInfo,
+    paras: paras
+  })
+}
+
+/**
+ * 用户信息保存
+ */
+const articleSave = articleData => {
+  return createPostRequest({
+    api: apis.articleSave,
+    data: articleData,
+  })
+}
+
+///////////////////////article api end/////////////////////////////////
+
+
+///////////////////////page api start/////////////////////////////////
+
+/**
+ * 获取页面信息
+ */
+const pageInfo = id => {
+  return createGetRequest({
+    api: apis.pageInfo,
+    paras: { id: id }
+  })
+}
+
+/**
+ * 获取页面列表
+ */
+const pageList = flag => {
+  return createGetRequest({
+    api: apis.pageList,
+    paras: { flag: flag }
+  })
+}
+
+///////////////////////page api end/////////////////////////////////
+
+
+
 module.exports = {
-  init: init,
-  login: code2session,
-  getUserInfo: decryptUserInfo,
-  sign: sign
+  init: init, //初始化
+  createGetRequest: createGetRequest, //构建一个Get API请求
+  createPostRequest: createPostRequest, //构建一个Post API请求
+  createRequest: createRequest, //构建一个API请求，默认是get请求
+  wxLogin: code2session, //进行用户code初始化
+  wxGetUserInfo: decryptUserInfo, //进行用户注册 或 初始化当前用户信息
+
+  // 配置相关 //
+  optionInfo: optionInfo,
+
+  // 用户相关 //
+  userInfo: userInfo,
+  myInfo: myInfo,
+  userSave: userSave,
+
+  // 文章相关 //
+  articleInfo: articleInfo,
+  articleList: articleList,
+  articlePagination: articlePagination,
+  articleCategoryInfo: articleCategoryInfo,
+  articleSave: articleSave,
+
+  // 页面相关 //
+  pageInfo: pageInfo,
+  pageList: pageList,
 }
