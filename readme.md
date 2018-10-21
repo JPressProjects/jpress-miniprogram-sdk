@@ -29,8 +29,34 @@ App({
 
 #### 用户登录和注册
 
-jpress.login();
-jpress.getUserInfo();
+**用户登录**
+
+```js
+wx.login({
+  success: res => {
+    jpress.login(res.code)
+  }
+})
+```
+
+**注册新用户或初始化当前用户**
+
+微信小程序布局文件：
+
+```html
+<button  open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 
+获取用户信息 
+</button>
+```
+
+js 处理：
+
+```js
+getUserInfo: function(e) {
+    jpress.getUserInfo(e.detail)
+}
+```
+
 
 #### 获取当前用户信息（自己的信息）
 
@@ -72,5 +98,7 @@ jpress.userSave(userData)
     console.error(error.message)
 })
 ```
+
+其他接口紧张更新中，预计10月底能发布第一个版本。
 
 
