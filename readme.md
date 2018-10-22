@@ -69,17 +69,17 @@ getUserInfo: function(e) {
 | createRequest | 构建一个API请求，默认是get请求 |  |
 | wxLogin | 进行用户code初始化 |  |
 | wxGetUserInfo | 进行用户注册 （如果当前用户没有注册，就会注册一个新的用户；如果用户已经注册，则初始化当前用户信息） |  |
-| optionInfo | 获取网站配置信息 |  |
-| userInfo | 通过用户ID获取用户信息 |  |
-| myInfo | 获取当前登录的用户信息（我的信息） |  |
-| userSave | 对用户信息进行保存 |  |
-| articleInfo | 获取单篇文章信息 |  |
-| articleList | 获取文章列表（固定数量，默认为10条数据） |  |
-| articlePagination | 分页加载文章列表 |  |
-| articleCategoryInfo | 获取网站的分类信息 |  |
-| articleSave | 文章数据更新 |  |
-| pageInfo | 获取单个页面信息 |  |
-| pageList | 获取固定标识的页面列表 |  |
+| getOption | 获取网站配置信息 |  |
+| getUser | 通过用户ID获取用户信息 |  |
+| getMyInfo | 获取当前登录的用户信息（我的信息） |  |
+| doUserSave | 对用户信息进行保存 |  |
+| getArticle | 获取单篇文章信息 |  |
+| getArticleList | 获取文章列表（固定数量，默认为10条数据） |  |
+| getArticlePage | 分页加载文章列表 |  |
+| getArticleCategory | 获取网站的分类信息 |  |
+| doArticleSave | 文章数据更新 |  |
+| getPage | 获取单个页面信息 |  |
+| getPageList | 获取固定标识的页面列表 |  |
 
 
 
