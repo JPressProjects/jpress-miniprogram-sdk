@@ -86,10 +86,12 @@ getUserInfo: function(e) {
 #### 获取当前用户信息（自己的信息）
 
 ```js
-jpress.myInfo()
-.send()
+jpress.getMyInfo()
 .then(data=>{
     console.log(data)//用户信息
+})
+.catch(data=>{
+    console.log(data.message);//错误信息
 })
 ```
 
@@ -98,10 +100,12 @@ jpress.myInfo()
 获取id=123的用户信息
 
 ```js
-jpress.userInfo(123)
-.send()
+jpress.getUser(123)
 .then(data=>{
-    console.log(data)//用户信息
+    console.log(data)//id=123的用户信息
+})
+.catch(data=>{
+    console.log(data.message);//错误信息
 })
 ```
 
@@ -114,8 +118,7 @@ var userData = {
     email : "xxx@qq.com",  
 }
 
-jpress.userSave(userData)
-.send()
+jpress.doUserSave(userData)
 .then(data=>{
     //保存成功
 })
