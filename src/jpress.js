@@ -85,14 +85,18 @@ const createRequest = (req = {
 
   var realRequest = {
     url: url,
-    method: (req.method == null ? 'GET' : method),
-    header: Object.assign({ "jwt": config.jwt }, req.header),
+    method: (req.method == null ? 'GET' : req.method),
+    header: Object.assign({ "Jwt": config.jwt }, req.header),
     data: req.data,
   }
 
   const p = new Promise((resolve, reject) => {
     wx.request(Object.assign({
       success: function (res) {
+        //注意：第一个字母大写
+        if (res.header.Jwt){
+          config.jwt = res.header.Jwt;
+        }
         //jpress 请求成功
         if (res.data.state == "ok") {
           resolve(res.data);
@@ -147,7 +151,6 @@ const code2session = code => {
     return true;
   })
   .catch(data => {
-    console.error("error -----> " + data.message);
     return false;
   })
 
@@ -167,7 +170,6 @@ const decryptUserInfo = (data = {
     return true;
   })
   .catch(data => {
-    console.error("error:" + data.message);
     return false;
   })
 }
