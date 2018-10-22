@@ -5,14 +5,14 @@ const apis = {
   decryptUserInfo: "/api/wechat/mp/decryptUserInfo",
 
   //user apis
-  userInfo:"/api/user",
-  myInfo:"/api/user/me",
-  userSave:"/api/user/save",
+  userInfo: "/api/user",
+  myInfo: "/api/user/me",
+  userSave: "/api/user/save",
 
   //article apis
   articleInfo: "/api/article",
-  articleList:"/api/article/list",
-  articlePagination:"/api/article/paginate",
+  articleList: "/api/article/list",
+  articlePagination: "/api/article/paginate",
   articleCategoryInfo: "/api/article/category",
   articleSave: "/api/article/save",
 
@@ -21,28 +21,28 @@ const apis = {
   pageList: "/api/page/list",
 
   //option apis
-  optionInfo:"/api/option",
+  optionInfo: "/api/option",
 }
 
 const config = {
-  host : "",
-  app_id:"",
-  app_secret:"",
-  sessionId:"",
-  jwt:""
+  host: "",
+  app_id: "",
+  app_secret: "",
+  sessionId: "",
+  jwt: ""
 }
 
-const init = conf =>{
+const init = conf => {
   config.host = conf.host;
   config.app_id = conf.app_id;
   config.app_secret = conf.app_secret;
 }
 
 
-const getUrl = (api,paras) => {
+const getUrl = (api, paras) => {
 
   paras = Object.assign({
-    appId:config.app_id
+    appId: config.app_id
   }, paras);
 
   //对数据进行签名
@@ -54,17 +54,17 @@ const getUrl = (api,paras) => {
   }, paras);
 
   //拼接URL地址
-  var url = config.host+api+"?"
+  var url = config.host + api + "?"
   var arr = Object.keys(paras);
   for (var i in arr) {
-    url = url + (arr[i] + "=" + paras[arr[i]])+"&";
+    url = url + (arr[i] + "=" + paras[arr[i]]) + "&";
   }
 
   //remove last '&'
-  return url.substring(0, url.length - 1); 
+  return url.substring(0, url.length - 1);
 }
 
-const createGetRequest = req =>{
+const createGetRequest = req => {
   //default is get
   return createRequest(req);
 }
@@ -79,20 +79,20 @@ const createRequest = (req = {
   method,
   header,
   data,
-  }) =>{
+}) => {
 
   var url = getUrl(req.api, req.paras);
 
   var realRequest = {
-    url : url,
-    method : (req.method == null ? 'GET' : method),
-    header : Object.assign({"jwt" : config.jwt},req.header),
-    data:req.data,
+    url: url,
+    method: (req.method == null ? 'GET' : method),
+    header: Object.assign({ "jwt": config.jwt }, req.header),
+    data: req.data,
   }
 
   const p = new Promise((resolve, reject) => {
     wx.request(Object.assign({
-      success: function (res) { 
+      success: function (res) {
         //jpress 请求成功
         if (res.data.state == "ok") {
           resolve(res.data);
@@ -102,15 +102,15 @@ const createRequest = (req = {
       },
       error: function (e) {
         reject({
-          code : 99,
-          message: '网络出错'
+          code: 99,
+          message: '网络错误'
         });
       }
-    },realRequest))
+    }, realRequest))
   });
 
   return {
-    send : () => p
+    send: () => p
   }
 }
 
@@ -119,9 +119,6 @@ const createRequest = (req = {
  * 要保证和JPress签名算法一致
  */
 const sign = obj => {
-  if (obj == null) { 
-    return null;
-   }
 
   var secret = config.app_secret;
 
@@ -141,15 +138,17 @@ const sign = obj => {
 const code2session = code => {
 
   createRequest({
-    api:apis.code2session,
-    paras:{code : code}
+    api: apis.code2session,
+    paras: { code: code }
   })
   .send()
   .then(data => {
-      config.sessionId = data.sessionId;
-    })
-  .catch(data =>{
-     console.error("error -----> " + data.message);
+    config.sessionId = data.sessionId;
+    return true;
+  })
+  .catch(data => {
+    console.error("error -----> " + data.message);
+    return false;
   })
 
 }
@@ -159,15 +158,17 @@ const decryptUserInfo = (data = {
 }) => {
 
   createPostRequest({
-    api:apis.decryptUserInfo,
+    api: apis.decryptUserInfo,
     data: Object.assign({ sessionId: config.sessionId }, data)
   })
   .send()
   .then(data => {
     config.jwt = data.token;
+    return true;
   })
   .catch(data => {
     console.error("error:" + data.message);
+    return false;
   })
 }
 
@@ -178,11 +179,11 @@ const decryptUserInfo = (data = {
 /**
  * 获取网站配置信息
  */
-const optionInfo = key => {
+const getOption = key => {
   return createGetRequest({
     api: apis.optionInfo,
     paras: { key: key }
-  })
+  }).send()
 }
 
 ///////////////////////option api end/////////////////////////////////
@@ -192,30 +193,30 @@ const optionInfo = key => {
 /**
  * 获取用户信息
  */
-const userInfo = id =>{
+const getUser = id => {
   return createGetRequest({
-    api : apis.userInfo,
-    paras : {id : id}
-  })
+    api: apis.userInfo,
+    paras: { id: id }
+  }).send()
 }
 
 /**
  * 获取登录用户信息（我的信息）
  */
-const myInfo = () => {
+const getMyInfo = () => {
   return createGetRequest({
     api: apis.myInfo
-  })
+  }).send()
 }
 
 /**
  * 用户信息保存
  */
-const userSave = userData => {
+const doUserSave = userData => {
   return createPostRequest({
     api: apis.userSave,
     data: userData,
-  })
+  }).send()
 }
 
 
@@ -227,17 +228,17 @@ const userSave = userData => {
 /**
  * 获取文章信息
  */
-const articleInfo = id => {
+const getArticle = id => {
   return createGetRequest({
     api: apis.articleInfo,
     paras: { id: id }
-  })
+  }).send()
 }
 
 /**
  * 获取文章列表
  */
-const articleList = (paras = {
+const getArticleList = (paras = {
   flag,
   hasThumbnail,
   orderBy,
@@ -246,25 +247,25 @@ const articleList = (paras = {
   return createGetRequest({
     api: apis.articleList,
     paras: paras
-  })
+  }).send()
 }
 
 /**
  * 分页获取文章内容
  */
-const articlePagination = (paras = {
+const getArticlePage = (paras = {
   categoryId
 }) => {
   return createGetRequest({
     api: apis.articlePagination,
     paras: paras
-  })
+  }).send()
 }
 
 /**
  * 获取文章分类信息
  */
-const articleCategoryInfo = (paras = {
+const getArticleCategory = (paras = {
   id,
   slug,
   type,
@@ -272,17 +273,17 @@ const articleCategoryInfo = (paras = {
   return createGetRequest({
     api: apis.articleCategoryInfo,
     paras: paras
-  })
+  }).send()
 }
 
 /**
  * 用户信息保存
  */
-const articleSave = articleData => {
+const doArticleSave = articleData => {
   return createPostRequest({
     api: apis.articleSave,
     data: articleData,
-  })
+  }).send()
 }
 
 ///////////////////////article api end/////////////////////////////////
@@ -293,21 +294,21 @@ const articleSave = articleData => {
 /**
  * 获取页面信息
  */
-const pageInfo = id => {
+const getPage = id => {
   return createGetRequest({
     api: apis.pageInfo,
     paras: { id: id }
-  })
+  }).send()
 }
 
 /**
  * 获取页面列表
  */
-const pageList = flag => {
+const getPageList = flag => {
   return createGetRequest({
     api: apis.pageList,
     paras: { flag: flag }
-  })
+  }).send()
 }
 
 ///////////////////////page api end/////////////////////////////////
@@ -323,21 +324,21 @@ module.exports = {
   wxGetUserInfo: decryptUserInfo, //进行用户注册 或 初始化当前用户信息
 
   // 配置相关 //
-  optionInfo: optionInfo,
+  getOption: getOption,
 
   // 用户相关 //
-  userInfo: userInfo,
-  myInfo: myInfo,
-  userSave: userSave,
+  getUser: getUser,
+  getMyInfo: getMyInfo,
+  doUserSave: doUserSave,
 
   // 文章相关 //
-  articleInfo: articleInfo,
-  articleList: articleList,
-  articlePagination: articlePagination,
-  articleCategoryInfo: articleCategoryInfo,
-  articleSave: articleSave,
+  getArticle: getArticle,
+  getArticleList: getArticleList,
+  getArticlePage: getArticlePage,
+  getArticleCategory: getArticleCategory,
+  doArticleSave: doArticleSave,
 
   // 页面相关 //
-  pageInfo: pageInfo,
-  pageList: pageList,
+  getPage: getPage,
+  getPageList: getPageList,
 }
