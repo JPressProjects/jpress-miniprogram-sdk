@@ -12,9 +12,11 @@ const apis = {
   //article apis
   articleInfo: "/api/article",
   articleList: "/api/article/list",
+  articleRelevantList: "/api/article/relevantList",
   articlePagination: "/api/article/paginate",
   articleCategoryInfo: "/api/article/category",
   articleSave: "/api/article/save",
+  postComment: "/api/article/postComment",
 
   //page apis
   pageInfo: "/api/page",
@@ -252,6 +254,18 @@ const getArticleList = (paras = {
   }).send()
 }
 
+
+/**
+ * 获取文章的相关文章
+ */
+const getArticleRelevantList = (paras = {id,count}) => {
+  return createGetRequest({
+    api: apis.articleRelevantList,
+    paras: paras
+  }).send()
+}
+
+
 /**
  * 分页获取文章内容
  */
@@ -279,12 +293,26 @@ const getArticleCategory = (paras = {
 }
 
 /**
- * 用户信息保存
+ * 保存文章
  */
 const doArticleSave = articleData => {
   return createPostRequest({
     api: apis.articleSave,
     data: articleData,
+  }).send()
+}
+
+/**
+ * 发布评论
+ */
+const doPostComment = (paras = {
+  articleId,
+  pid
+},content) => {
+  return createPostRequest({
+    api: apis.postComment,
+    paras: paras,
+    data: content,
   }).send()
 }
 
@@ -336,9 +364,11 @@ module.exports = {
   // 文章相关 //
   getArticle: getArticle,
   getArticleList: getArticleList,
+  getArticleRelevantList:getArticleRelevantList,
   getArticlePage: getArticlePage,
   getArticleCategory: getArticleCategory,
   doArticleSave: doArticleSave,
+  doPostComment: doPostComment,
 
   // 页面相关 //
   getPage: getPage,
