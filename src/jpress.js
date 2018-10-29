@@ -16,6 +16,9 @@ const apis = {
   articlePagination: "/api/article/paginate",
   articleCategoryInfo: "/api/article/category",
   articleSave: "/api/article/save",
+
+  //comment
+  commentPaginate:"/api/article/commentPaginate",
   postComment: "/api/article/postComment",
 
   //page apis
@@ -270,7 +273,9 @@ const getArticleRelevantList = (paras = {id,count}) => {
  * 分页获取文章内容
  */
 const getArticlePage = (paras = {
-  categoryId
+  categoryId,
+  orderBy,
+  page,
 }) => {
   return createGetRequest({
     api: apis.articlePagination,
@@ -299,6 +304,17 @@ const doArticleSave = articleData => {
   return createPostRequest({
     api: apis.articleSave,
     data: articleData,
+  }).send()
+}
+
+
+const getCommentPage = (paras = {
+  articleId,
+  page
+}) => {
+  return createGetRequest({
+    api: apis.commentPaginate,
+    paras: paras
   }).send()
 }
 
@@ -369,6 +385,7 @@ module.exports = {
   getArticleCategory: getArticleCategory,
   doArticleSave: doArticleSave,
   doPostComment: doPostComment,
+  getCommentPage: getCommentPage,
 
   // 页面相关 //
   getPage: getPage,
