@@ -15,6 +15,7 @@ const apis = {
   articleRelevantList: "/api/article/relevantList",
   articlePagination: "/api/article/paginate",
   articleCategoryInfo: "/api/article/category",
+  articleCategories: "/api/article/categories",
   articleSave: "/api/article/save",
 
   //comment
@@ -298,6 +299,16 @@ const getArticleCategory = (paras = {
 }
 
 /**
+ * 获取文章分类信息
+ */
+const getArticleCategories = type => {
+  return createGetRequest({
+    api: apis.articleCategories,
+    paras: {type:type}
+  }).send()
+}
+
+/**
  * 保存文章
  */
 const doArticleSave = articleData => {
@@ -383,6 +394,7 @@ module.exports = {
   getArticleRelevantList:getArticleRelevantList,
   getArticlePage: getArticlePage,
   getArticleCategory: getArticleCategory,
+  getArticleCategories: getArticleCategories,
   doArticleSave: doArticleSave,
   doPostComment: doPostComment,
   getCommentPage: getCommentPage,
