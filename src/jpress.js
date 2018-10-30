@@ -162,22 +162,23 @@ const code2session = code => {
 
 }
 
-const decryptUserInfo = (data = {
+const decryptUserInfo =  (data = {
   rawData, signature, encryptedData, iv
-}) => {
+},callback) => {
 
-  createPostRequest({
+ createPostRequest({
     api: apis.decryptUserInfo,
     data: Object.assign({ sessionId: config.sessionId }, data)
   })
   .send()
   .then(data => {
     config.jwt = data.token;
-    return true;
+    if (callback) callback(true);
   })
   .catch(data => {
-    return false;
+    if (callback) callback(false);
   })
+
 }
 
 
@@ -262,7 +263,7 @@ const getArticleList = (paras = {
 /**
  * 获取文章的相关文章
  */
-const getArticleRelevantList = (paras = {id,count}) => {
+const getArticleRelevantList = (paras = {articleId,count}) => {
   return createGetRequest({
     api: apis.articleRelevantList,
     paras: paras
@@ -371,14 +372,23 @@ const getPageList = flag => {
 ///////////////////////page api end/////////////////////////////////
 
 
+const isLogined = () => {
+  return config.jwt != "";
+}
+
+
+
 
 module.exports = {
+  config: config,
+
   init: init, //初始化
   createGetRequest: createGetRequest, //构建一个Get API请求
   createPostRequest: createPostRequest, //构建一个Post API请求
   createRequest: createRequest, //构建一个API请求，默认是get请求
   wxLogin: code2session, //进行用户code初始化
   wxGetUserInfo: decryptUserInfo, //进行用户注册 或 初始化当前用户信息
+  isLogined: isLogined,
 
   // 配置相关 //
   getOption: getOption,
