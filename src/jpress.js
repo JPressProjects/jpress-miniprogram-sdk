@@ -42,6 +42,9 @@ const init = conf => {
   config.host = conf.host;
   config.app_id = conf.app_id;
   config.app_secret = conf.app_secret;
+
+  var jwt = wx.getStorageSync("jwt");
+  if(jwt){config.jwt = jwt}
 }
 
 
@@ -101,7 +104,7 @@ const createRequest = (req = {
       success: function (res) {
         //注意：第一个字母大写
         if (res.header.Jwt){
-          config.jwt = res.header.Jwt;
+          updateJwt(res.header.Jwt);
         }
         //jpress 请求成功
         if (res.data.state == "ok") {
@@ -159,7 +162,14 @@ const code2session = code => {
   .catch(data => {
     return false;
   })
+}
 
+const updateJwt = (value) => {
+  config.jwt = value;
+  wx.setStorage({
+    key: 'jwt',
+    data: value,
+  })
 }
 
 const decryptUserInfo =  (data = {
@@ -172,7 +182,7 @@ const decryptUserInfo =  (data = {
   })
   .send()
   .then(data => {
-    config.jwt = data.token;
+    updateJwt(data.token);
     if (callback) callback(true);
   })
   .catch(data => {
@@ -193,6 +203,19 @@ const getOption = key => {
     api: apis.optionInfo,
     paras: { key: key }
   }).send()
+}
+
+
+const getAppName = () => {
+  return getOption('wechat_miniprogram_name')
+}
+
+const getCopyright = () => {
+  return getOption('wechat_miniprogram_copyright')
+}
+
+const getSlides = () => {
+  return getOption('wechat_miniprogram_slides')
 }
 
 ///////////////////////option api end/////////////////////////////////
@@ -392,6 +415,10 @@ module.exports = {
 
   // 配置相关 //
   getOption: getOption,
+  getAppName: getAppName,
+  getCopyright: getCopyright,
+  getSlides: getSlides,
+ 
 
   // 用户相关 //
   getUser: getUser,
