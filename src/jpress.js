@@ -51,7 +51,8 @@ const init = conf => {
 const getUrl = (api, paras) => {
 
   paras = Object.assign({
-    appId: config.app_id
+    appId: config.app_id,
+    t: new Date().getTime()
   }, paras);
 
   //对数据进行签名
