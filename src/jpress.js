@@ -28,6 +28,9 @@ const apis = {
 
   //option apis
   optionInfo: "/api/option",
+
+  //others
+  html2wxml:"/commons/html2wxml",
 }
 
 const config = {
@@ -142,7 +145,7 @@ const sign = obj => {
 
   var str = '';
   for (var i in arr) {
-    str += arr[i] + obj[arr[i]];
+    str += arr[i] + obj[arr[i]].toString();
   }
 
   return md5(str + secret);
@@ -405,6 +408,7 @@ const isLogined = () => {
 
 module.exports = {
   config: config,
+  getUrl:getUrl,
 
   init: init, //初始化
   createGetRequest: createGetRequest, //构建一个Get API请求
@@ -413,6 +417,7 @@ module.exports = {
   wxLogin: code2session, //进行用户code初始化
   wxGetUserInfo: decryptUserInfo, //进行用户注册 或 初始化当前用户信息
   isLogined: isLogined,
+
 
   // 配置相关 //
   getOption: getOption,
