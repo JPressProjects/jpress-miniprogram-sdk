@@ -17,6 +17,7 @@ const apis = {
   articleCategoryInfo: "/api/article/category",
   articleCategories: "/api/article/categories",
   articleSave: "/api/article/save",
+  tagArticleList:"/api/article/tagArticles",
 
   //comment
   commentPaginate:"/api/article/commentPaginate",
@@ -31,6 +32,7 @@ const apis = {
 
   //others
   html2wxml:"/commons/html2wxml",
+  
 }
 
 const config = {
@@ -46,8 +48,10 @@ const init = conf => {
   config.app_id = conf.app_id;
   config.app_secret = conf.app_secret;
 
-  var jwt = wx.getStorageSync("jwt");
-  if(jwt){config.jwt = jwt}
+  if(typeof(wx) != 'undefined'){
+    var jwt = wx.getStorageSync("jwt");
+    if(jwt){config.jwt = jwt}
+  }
 }
 
 
@@ -94,36 +98,61 @@ const createRequest = (req = {
   data,
 }) => {
 
-  var url = getUrl(req.api, req.paras);
+ var url = getUrl(req.api,req.method == 'POST' ? {} : req.paras)
+//var url = getUrl(req.paras)
 
   var realRequest = {
     url: url,
     method: (req.method == null ? 'GET' : req.method),
     header: Object.assign({ "Jwt": config.jwt }, req.header),
-    data: req.data,
+    data: req.data 
   }
 
   const p = new Promise((resolve, reject) => {
-    wx.request(Object.assign({
-      success: function (res) {
-        //注意：第一个字母大写
-        if (res.header.Jwt){
-          updateJwt(res.header.Jwt);
-        }
-        //jpress 请求成功
-        if (res.data.state == "ok") {
-          resolve(res.data);
-        } else {
-          reject(res.data);
-        }
-      },
-      error: function (e) {
-        reject({
-          code: 99,
-          message: '网络错误'
-        });
-      }
-    }, realRequest))
+
+    function start(resolve,reject){
+        var requestHandler;
+
+            //支持微信小程序
+            if(typeof(wx) != 'undefined'){
+                requestHandler = wx;
+            }
+            //支持百度小程序
+            else if(typeof(swan) != 'undefined'){
+                requestHandler = swan;
+            }
+
+            requestHandler.request(Object.assign({
+            success: function (res) {
+            
+                //注意：第一个字母大写
+                if (res.header.Jwt){
+                    updateJwt(res.header.Jwt);
+                }
+                //jpress 请求失败
+                if (res.data.state && res.data.state == "fail") {
+                    reject(res.data);
+                } else {
+                    resolve(res.data);
+                }
+            },
+            error:function(e){
+                reject({
+                    code: 99,
+                    message: '网络错误'
+                });
+            },
+            fail: function (e) {
+                reject({
+                    code: 99,
+                    message: '网络错误'
+                });
+            }
+            }, realRequest))
+    } 
+
+    start(resolve,reject);
+   
   });
 
   return {
@@ -145,7 +174,8 @@ const sign = obj => {
 
   var str = '';
   for (var i in arr) {
-    str += arr[i] + obj[arr[i]].toString();
+    var value = obj[arr[i]];
+    if(value) str += arr[i] +value.toString();
   }
 
   return md5(str + secret);
@@ -168,7 +198,7 @@ const code2session = code => {
   })
 }
 
-const updateJwt = (value) => {
+const updateJwt = value => {
   config.jwt = value;
   wx.setStorage({
     key: 'jwt',
@@ -202,10 +232,10 @@ const decryptUserInfo =  (data = {
 /**
  * 获取网站配置信息
  */
-const getOption = key => {
+const getOption = (paras={key}) => {
   return createGetRequest({
     api: apis.optionInfo,
-    paras: { key: key }
+    paras: paras
   }).send()
 }
 
@@ -229,10 +259,10 @@ const getSlides = () => {
 /**
  * 获取用户信息
  */
-const getUser = id => {
+const getUser = (paras={id}) => {
   return createGetRequest({
     api: apis.userInfo,
-    paras: { id: id }
+    paras: paras
   }).send()
 }
 
@@ -264,10 +294,10 @@ const doUserSave = userData => {
 /**
  * 获取文章信息
  */
-const getArticle = id => {
+const getArticle = (paras={id}) => {
   return createGetRequest({
     api: apis.articleInfo,
-    paras: { id: id }
+    paras: paras
   }).send()
 }
 
@@ -304,7 +334,7 @@ const getArticleRelevantList = (paras = {articleId,count}) => {
 const getArticlePage = (paras = {
   categoryId,
   orderBy,
-  page,
+  pageNumber,
 }) => {
   return createGetRequest({
     api: apis.articlePagination,
@@ -329,12 +359,28 @@ const getArticleCategory = (paras = {
 /**
  * 获取文章分类信息
  */
-const getArticleCategories = type => {
+const getArticleCategories = (paras={
+    type,
+    pid
+}) => {
   return createGetRequest({
     api: apis.articleCategories,
-    paras: {type:type}
+    paras: paras
   }).send()
 }
+
+
+const getTagArticleList = (paras = {
+  tag,
+  count,
+}) => {
+  return createGetRequest({
+    api: apis.tagArticleList,
+    paras: paras
+  }).send()
+}
+
+
 
 /**
  * 保存文章
@@ -379,20 +425,25 @@ const doPostComment = (paras = {
 /**
  * 获取页面信息
  */
-const getPage = id => {
+const getPage = (paras = {
+    id,
+    slug,
+}) => {
   return createGetRequest({
     api: apis.pageInfo,
-    paras: { id: id }
+    paras: paras
   }).send()
 }
 
 /**
  * 获取页面列表
  */
-const getPageList = flag => {
+const getPageList = (paras={
+    flag:flag
+}) => {
   return createGetRequest({
     api: apis.pageList,
-    paras: { flag: flag }
+    paras: paras
   }).send()
 }
 
@@ -406,9 +457,70 @@ const isLogined = () => {
 
 
 
+const html2wxml = data => {
+  return createPostRequest({
+    api: apis.html2wxml,
+    header: {
+        'content-type': 'application/x-www-form-urlencoded'
+    },
+    data:data
+  }).send()
+}
+
+const processImageSrcs = (paras={
+    data,
+    attrs
+}) => {
+
+  if(! paras.data ){
+      return paras.data;
+  }
+
+  const attrs = paras.attrs ? paras.attrs.split(',') : null;
+
+  if(paras.data instanceof Array){
+    for (const index in paras.data) {
+       const val = processObjImageSrcs(paras.data[index],attrs);
+       if(val) paras.data[index] = val;
+    }
+  }
+  //非数组的情况：object
+  else{
+     const val =  processObjImageSrcs(paras.data,attrs);
+     if(val) paras.data = val;
+  } 
+
+  return paras.data;
+}
+
+const processObjImageSrcs = (obj,attrs)=>{
+    if(typeof(obj) === 'string'){
+        if(obj.indexOf('/') == 0){
+           return config.host + obj;
+        }
+    }else{
+        const arr = Object.keys(obj);
+        for(const field in arr){
+            for(const f in attrs){
+                if(attrs[f] === arr[field]){
+                    const value = obj[arr[field]];
+                    if(value && value.indexOf('/') == 0){
+                        obj[attrs[f]] = config.host + value;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 module.exports = {
   config: config,
   getUrl:getUrl,
+  html2wxml:html2wxml,
+  processImageSrcs:processImageSrcs,
 
   init: init, //初始化
   createGetRequest: createGetRequest, //构建一个Get API请求
@@ -438,6 +550,7 @@ module.exports = {
   getArticlePage: getArticlePage,
   getArticleCategory: getArticleCategory,
   getArticleCategories: getArticleCategories,
+  getTagArticleList:getTagArticleList,
   doArticleSave: doArticleSave,
   doPostComment: doPostComment,
   getCommentPage: getCommentPage,
